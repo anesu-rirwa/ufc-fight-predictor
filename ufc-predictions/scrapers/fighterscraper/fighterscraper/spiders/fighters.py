@@ -21,30 +21,49 @@ class FightersSpider(scrapy.Spider):
 
         # extracting fighter details
         fighter_name = sel.xpath('//span[@class="b-content__title-highlight"]/text()').get()
-        fighter_record = sel.xpath('//span[@class="b-content__title-record"/text()]').get()
-        fighter_nickname = sel.xpath('//span[@class="b-content__Nickname"/text()]').get()
+        fighter_nickname = sel.xpath('//p[@class="b-content__Nickname"]/text()').get()
+        height = sel.xpath('//i[contains(text(), "Height")]/following-sibling::text()[1]').get()
+        weight = sel.xpath('//i[contains(text(), "Weight")]/following-sibling::text()[1]').get()
+        reach = sel.xpath('//i[contains(text(), "Reach")]/following-sibling::text()[1]').get()
+        stance = sel.xpath('//i[contains(text(), "STANCE")]/following-sibling::text()[1]').get()
+        date_of_birth = sel.xpath('//i[contains(text(), "DOB")]/following-sibling::text()[1]').get()
 
-        height = sel.xpath('//li[contains(i[@class="b-list__box-item-title"], "Height")]/text()')
+        slpm = sel.xpath('//i[contains(text(), "SLpM")]/following-sibling::text()[1]').get() # strikes landed per minute
+        ssa = sel.xpath('//i[contains(text(), "Str. Acc.")]/following-sibling::text()[1]').get() # significant strike accuracy
+        samp = sel.xpath('//i[contains(text(), "SApM")]/following-sibling::text()[1]').get() # stikes absorbed per minute
+        ssd = sel.xpath('//i[contains(text(), "Str. Def.")]/following-sibling::text()[1]').get() # significant strike defence
 
-        reach = sel.xpath()
-        stance = sel.xpath()
-        date_of_birth = sel.xpath()
+        td_avg = sel.xpath('//i[contains(text(), "TD Avg.")]/following-sibling::text()[1]').get() # takedown_average
+        td_acc = sel.xpath('//i[contains(text(), "TD Acc.")]/following-sibling::text()[1]').get() # takedown_ accuracy
+        td_def = sel.xpath('//i[contains(text(), "TD Def.")]/following-sibling::text()[1]').get() # takedown_defense
 
+        sub_avg = sel.xpath('//i[contains(text(), "Sub. Avg.")]/following-sibling::text()[1]').get() # takedown_defense# submission_average
 
+        # Output scraped data
+        yield {
+            'fighter_name': fighter_name,
+            'figter_nickname': fighter_nickname, 
+            'height': height,
+            'weight': weight,
+            'reach': reach,
+            'stance': stance,
+            'date_of_birth': date_of_birth,
+            'slpm': slpm,
+            'ssa': ssa,
+            'samp': samp,
+            'ssd': ssd,
+            'td_avg': td_avg,
+            'td_acc': td_acc,
+            'td_def': td_def,
+            'sub_avg': sub_avg
+        }
 
-# height
-# weight
-# reach
-# stance
-# dob
+        
 
-# slpm (strikes landed per minute)
-# ssa (significant strike accuracy)
-# sapm (stikes absorbed per minute)
-# striking_defense
+if __name__ == "__main__":
+    process = CrawlerProcess({
+        'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'
+    })
 
-# takedown_average
-# takedown_ accuracy
-# takedown_defense
-
-# submission_average
+    process.crawl(FightersSpider)
+    process.start() 
