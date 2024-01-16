@@ -7,7 +7,6 @@ class FightersSpider(scrapy.Spider):
     name = "fighters"
     start_urls = ["http://www.ufcstats.com/statistics/fighters"]
     
-    # http://www.ufcstats.com/fighter-details/1338e2c7480bdf9e
     def parse(self, response):
         # extracting fighter links from the main page
         fighter_links = response.xpath('//tbody//a[@class="b-link b-link_style_black"]/@href').extract() #Uses XPath to extract the links to individual fighter pages from the list of fighters on the current page.
@@ -15,6 +14,13 @@ class FightersSpider(scrapy.Spider):
         # iterate through each fighter link and send a request to their details page
         for link in fighter_links:
             yield scrapy.Request(response.urljoin(link), callback=self.parse_fighter)
+
+        # follow pagination link
+        next_page = response.xpath('//li[@class="b-statistics__paginate-item"]/a[@class="b-statistics__paginate-link"]').extract_first()
+
+        if next_page:
+            yield scrapy.Request(response.urljoin(next_page), callback=self.parse)
+
 
     def parse_fighter(self, response):
         sel = Selector(response)
@@ -58,12 +64,14 @@ class FightersSpider(scrapy.Spider):
             'sub_avg': sub_avg
         }
 
-        
-
 if __name__ == "__main__":
     process = CrawlerProcess({
         'USER_AGENT': 'Mozilla/4.0 (compatible; MSIE 7.0; Windows NT 5.1)'
     })
 
-    process.crawl(FightersSpider)
+    # Iterate through the alphabet and generate start URLs
+    for letter in string.ascii_uppercase:
+        start_url = f'http://www.ufcstats.com/statistics/fighters?char={letter}'
+        process.crawl(FightersSpider, start_urls=[start_url])
+
     process.start() 
